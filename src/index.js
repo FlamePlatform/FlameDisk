@@ -21,8 +21,6 @@ class Validation {
 }
 
 let v = new Validation();
-export var registry = v;
-
 
 
 //Default Validation
@@ -128,16 +126,16 @@ class Model {
       if (!!!this.id) {
         this.id = mongoid().toString();
       }
-      await waitable(this.__hooks.beforeSave.bind(this), null);
+      let err = await waitable(this.__hooks.beforeSave.bind(this), null);
       await this.update();
-      await waitable(this.__hooks.afterSave.bind(this), null);
+      await waitable(this.__hooks.afterSave.bind(this), err);
     } catch (e) {
       throw e;
     }
   }
 
   async validate() {
-    await waitable(this.__hooks.beforeValidation.bind(this), null)
+    await waitable(this.__hooks.beforeValidate.bind(this), null)
     var self = this;
     let instance = this.__instance;
     var errors = [];
@@ -145,7 +143,7 @@ class Model {
       try {
         //grab validation function for each key
         let each = this.eachValidate(instance[key]);
-        let keepgoing=true;
+        let keepgoing = true;
         for (var validate of each) {
           let [func, args] = validate;
           let result;
@@ -154,13 +152,13 @@ class Model {
           a = a.concat(args);
           for (let f of func) {
             result = f.apply(self, a);
-            if (result instanceof Nullable){
-              keepgoing=false;
+            if (result instanceof Nullable) {
+              keepgoing = false;
               break; //TODO allow nullable with break
             }
             a[0] = result;
           }
-          if(!keepgoing){
+          if (!keepgoing) {
             break;
           }
         }
@@ -173,7 +171,7 @@ class Model {
         throw p;
       }
     }
-    await waitable(this.__hooks.afterValidation.bind(this), null);
+    await waitable(this.__hooks.afterValidate.bind(this), null);
     return true;
   }
 
@@ -194,32 +192,38 @@ class Model {
   }
 
   async update() {
-    await waitable(this.__hooks.beforeUpdate.bind(this), null);
-    await this.validate();
-    let instance = this.__instance;
-    let storage = this.___storage;
-    var dir = storage.directory;
-    var classFolder = path.resolve(dir, this.___classname);
-    var itemFolder = path.resolve(classFolder, this.id);
-    await waitable(mkdirp, classFolder);
-    await waitable(mkdirp, itemFolder);
-    var promises = [];
-    for (var key in instance) {
-      if (typeof this[key] !== "undefined") {
-        var file = path.resolve(itemFolder, key);
-        var value = this[key];
-        promises.push(async function() {
-          try {
-            await waitable(fs.writeFile, file, value);
-          } catch (e) {
-
-          }
-        }());
+    try {
+      console.log(this.__hooks);
+      await waitable(this.__hooks.beforeUpdate.bind(this), null);
+      await this.validate();
+      let instance = this.__instance;
+      let storage = this.___storage;
+      var dir = storage.directory;
+      var classFolder = path.resolve(dir, this.___classname);
+      var itemFolder = path.resolve(classFolder, this.id);
+      await waitable(mkdirp, classFolder);
+      await waitable(mkdirp, itemFolder);
+      var promises = [];
+      for (var key in instance) {
+        if (typeof this[key] !== "undefined") {
+          var file = path.resolve(itemFolder, key);
+          var value = this[key];
+          promises.push(async function() {
+            try {
+              await waitable(fs.writeFile, file, value);
+            } catch (e) {
+              throw e;
+            }
+          }());
+        }
       }
+      var result = await Promise.all(promises);
+      await waitable(this.__hooks.afterUpdate.bind(this), null);
+      return result;
+    } catch (e) {
+      console.log(e.stack);
+      throw e;
     }
-    var result = await Promise.all(promises);
-    await waitable(this.__hooks.afterUpdate.bind(this), null);
-    return result;
   }
 
 
@@ -361,6 +365,9 @@ export default class Storage {
     this.validation = this.Validation = v;
   }
 
+
+  static validation = v;
+
   async ready() {
     await waitable(mkdirp, this.directory);
     return true;
@@ -372,11 +379,11 @@ export default class Storage {
     var self = this;
 
     try {
-      var next = function(err, cb) {
-        cb();
-      }
-      for (var key of "beforeCreate ,afterCreate ,beforeSave ,afterSave ,beforeUpdate ,afterUpdate".split(",").map(s => s.trim())) {
-        hooks[key] = hooks[key] || next;
+      for (let key of "beforeCreate ,afterCreate ,beforeSave ,afterSave ,beforeUpdate ,afterUpdate, beforeValidate,afterValidate".split(",").map(s => s.trim())) {
+        hooks[key] = hooks[key] || function(err, cb) {
+          log(`default method for ${key}`);
+          cb();
+        };
       }
 
       if (!name || name === "") {
@@ -421,16 +428,24 @@ export default class Storage {
 
       _class.Create = async function(data) {
         return new Promise(function(resolve, reject) {
-          hooks.beforeCreate.call(data, null, async function(err, next) {
-            if (err) return reject(err);
-            var obj = new _class(data);
-            await obj.save();
-            hooks.afterCreate.call(obj, null, function(err) {
+
+          try {
+            hooks.beforeCreate.call(data, null, async function(err, next) {
+              log(`calling before create function`);
               if (err) return reject(err);
-              else
-                resolve(obj)
-            })
-          });
+              log(`no errors before create not rejected`);
+              var obj = new _class(data);
+              await obj.save();
+              hooks.afterCreate.call(obj, null, function(err) {
+                log(`calling after create function`)
+                if (err) return reject(err);
+                else
+                  resolve(obj)
+              })
+            });
+          } catch (e) {
+            reject(e);
+          }
         })
       }
 
