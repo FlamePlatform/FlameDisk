@@ -22,7 +22,7 @@ describe("Criteria Manager", function() {
   const test = {
     name: "Shavauhn Gabay",
     age: 26,
-    phone: "905 8869765"
+    phone: "905 986 9765"
   }
 
   const namematch = {

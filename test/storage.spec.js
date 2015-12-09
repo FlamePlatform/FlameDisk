@@ -45,13 +45,11 @@ describe("The Storage Class", function() {
 
   it("should be able to register validation", async function(done) {
     try {
-      let success = storage.validation.register("phone", function({
-        value, good, bad
-      }) {
-        if (/[0-9]{10,15}/.test(value)) {
-          good();
+      let success = storage.validation.register("phone", function(value){
+        if (/[0-9]{0,1} ?[0-9]{0,3} ?[0-9]{0,3} ?[0-9]{0,4}/.test(value)) {
+          return value;
         } else {
-          bad(`Phone value ${value} is not valid`);
+          throw new Error(`Phone number ${value} is not in a valid format`)
         }
       });
 
@@ -67,7 +65,6 @@ describe("The Storage Class", function() {
 
   it("should be able to create a schema", async function(done) {
     try {
-
       var obj = {
         call: function(err, next) {
           next();
@@ -96,6 +93,8 @@ describe("The Storage Class", function() {
           first: "string",
           last: "string",
           age: "number|age|min(13)|max(150)",
+          phone: "phone",
+          favColor:"nullable|string"
         },
         classMethods: {
 
@@ -104,6 +103,7 @@ describe("The Storage Class", function() {
       });
       done();
     } catch (e) {
+      console.log(e);
       done(e);
     } finally {
 
@@ -113,18 +113,21 @@ describe("The Storage Class", function() {
   describe("A Person Class", function() {
     let person;
     let id;
+
     it("should be able to create a person", async function(done) {
       try {
         person = await storage.Person.Create({
           first: "Shavauhn",
           last: "Gabay",
-          age: 26
+          age: 26,
+          phone:"4164563456"
         });
 
         await storage.Person.Create({
           first:"Rashad",
           last :"Williams",
-          age:30
+          age:30,
+          phone:"416 765 4345"
         })
 
         id = person.id;

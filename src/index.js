@@ -4,6 +4,7 @@ var path = require('path');
 var fs = require('fs');
 var mongoid = require('mongoid');
 let contains = require("object-contains");
+const log = require("debug")("flame:disk");
 
 
 var validationBox = {};
@@ -12,6 +13,7 @@ class Validation {
   constructor() {}
 
   register(name, func) {
+    log(`registering name ${name}`);
     validationBox[name] = validationBox[name] || [];
     validationBox[name].push(func);
     return true;
@@ -19,18 +21,38 @@ class Validation {
 }
 
 let v = new Validation();
+export var registry = v;
 
+
+
+//Default Validation
 v.register("string", function string(string) {
+  if (typeof string === "string") {
+    return string;
+  } else {
+    throw new Error("Not a valid string");
+  }
   return string;
 })
 
+
+
+
+
+
+
+
 v.register("number", function number(string) {
+
   if (!isNaN(parseInt(string))) {
     return parseInt(string);
   } else {
     throw new Error("Not a valid number");
   }
 })
+
+
+
 
 v.register("age", function age(age) {
   if (age < 0 || age > 200) {
@@ -39,12 +61,26 @@ v.register("age", function age(age) {
   return age;
 })
 
+
+
+
+
+
+
+
+
 v.register("min", function min(value, min = 0) {
   if (value < min) {
     throw new Error(`min is not valid for ${value}`)
   }
   return value;
 })
+
+
+
+
+
+
 
 v.register("max", function max(value, max = "0") {
   max = parseInt(max);
@@ -57,6 +93,28 @@ v.register("max", function max(value, max = "0") {
   return max;
 })
 
+
+
+
+class Nullable {
+
+}
+
+
+v.register("nullable", function(value) {
+  if (value === null || typeof value === "undefined") {
+    return new Nullable();
+  } else {
+    return value;
+  }
+})
+
+
+
+
+
+
+
 class Model {
   constructor() {
     if (!!!this.id) {
@@ -68,7 +126,7 @@ class Model {
 
     try {
       if (!!!this.id) {
-        this.id = mongoid();
+        this.id = mongoid().toString();
       }
       await waitable(this.__hooks.beforeSave.bind(this), null);
       await this.update();
@@ -85,17 +143,26 @@ class Model {
     var errors = [];
     for (var key in instance) {
       try {
+        //grab validation function for each key
         let each = this.eachValidate(instance[key]);
+        let keepgoing=true;
         for (var validate of each) {
           let [func, args] = validate;
           let result;
           let a = [];
           a.push(self[key]);
           a = a.concat(args);
-          func.map((f) => {
-            result = f.apply(self, a)
+          for (let f of func) {
+            result = f.apply(self, a);
+            if (result instanceof Nullable){
+              keepgoing=false;
+              break; //TODO allow nullable with break
+            }
             a[0] = result;
-          });
+          }
+          if(!keepgoing){
+            break;
+          }
         }
       } catch (e) {
         errors.push(new Error(`${key}: ${e.message}`));
@@ -315,6 +382,8 @@ export default class Storage {
       if (!name || name === "") {
         throw new Error(`name '${name}' is not a valid class name. Please set the name attribute in the create method`);
       }
+
+      //might not be needed
       const file = path.resolve(this.directory, name, "schema.js");
       const dir = path.dirname(file);
 
