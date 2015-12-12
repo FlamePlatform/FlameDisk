@@ -121,7 +121,7 @@ class Model {
   }
 
   async save() {
-
+    log(`saving`);
     try {
       if (!!!this.id) {
         this.id = mongoid().toString();
@@ -135,6 +135,7 @@ class Model {
   }
 
   async validate() {
+    log(`validating`);
     await waitable(this.__hooks.beforeValidate.bind(this), null)
     var self = this;
     let instance = this.__instance;
@@ -192,6 +193,7 @@ class Model {
   }
 
   async update() {
+    log(`updating`);
     try {
       console.log(this.__hooks);
       await waitable(this.__hooks.beforeUpdate.bind(this), null);
@@ -444,6 +446,7 @@ export default class Storage {
               })
             });
           } catch (e) {
+            log(e);
             reject(e);
           }
         })

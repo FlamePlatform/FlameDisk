@@ -162,38 +162,39 @@ var Model = (function () {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.prev = 0;
+                log('saving');
+                _context.prev = 1;
 
                 if (!!!this.id) {
                   this.id = mongoid().toString();
                 }
-                _context.next = 4;
+                _context.next = 5;
                 return waitable(this.__hooks.beforeSave.bind(this), null);
 
-              case 4:
+              case 5:
                 err = _context.sent;
-                _context.next = 7;
+                _context.next = 8;
                 return this.update();
 
-              case 7:
-                _context.next = 9;
+              case 8:
+                _context.next = 10;
                 return waitable(this.__hooks.afterSave.bind(this), err);
 
-              case 9:
-                _context.next = 14;
+              case 10:
+                _context.next = 15;
                 break;
 
-              case 11:
-                _context.prev = 11;
-                _context.t0 = _context['catch'](0);
+              case 12:
+                _context.prev = 12;
+                _context.t0 = _context['catch'](1);
                 throw _context.t0;
 
-              case 14:
+              case 15:
               case 'end':
                 return _context.stop();
             }
           }
-        }, _callee, this, [[0, 11]]);
+        }, _callee, this, [[1, 12]]);
       }));
       return function save() {
         return ref.apply(this, arguments);
@@ -209,23 +210,24 @@ var Model = (function () {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                _context2.next = 2;
+                log('validating');
+                _context2.next = 3;
                 return waitable(this.__hooks.beforeValidate.bind(this), null);
 
-              case 2:
+              case 3:
                 self = this;
                 instance = this.__instance;
                 errors = [];
                 _context2.t0 = _regenerator2.default.keys(instance);
 
-              case 6:
+              case 7:
                 if ((_context2.t1 = _context2.t0()).done) {
-                  _context2.next = 84;
+                  _context2.next = 85;
                   break;
                 }
 
                 key = _context2.t1.value;
-                _context2.prev = 8;
+                _context2.prev = 9;
 
                 //grab validation function for each key
                 each = this.eachValidate(instance[key]);
@@ -233,12 +235,12 @@ var Model = (function () {
                 _iteratorNormalCompletion = true;
                 _didIteratorError = false;
                 _iteratorError = undefined;
-                _context2.prev = 14;
+                _context2.prev = 15;
                 _iterator = (0, _getIterator3.default)(each);
 
-              case 16:
+              case 17:
                 if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-                  _context2.next = 59;
+                  _context2.next = 60;
                   break;
                 }
 
@@ -254,12 +256,12 @@ var Model = (function () {
                 _iteratorNormalCompletion2 = true;
                 _didIteratorError2 = false;
                 _iteratorError2 = undefined;
-                _context2.prev = 28;
+                _context2.prev = 29;
                 _iterator2 = (0, _getIterator3.default)(func);
 
-              case 30:
+              case 31:
                 if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
-                  _context2.next = 40;
+                  _context2.next = 41;
                   break;
                 }
 
@@ -268,117 +270,117 @@ var Model = (function () {
                 result = f.apply(self, a);
 
                 if (!(result instanceof Nullable)) {
-                  _context2.next = 36;
+                  _context2.next = 37;
                   break;
                 }
 
                 keepgoing = false;
-                return _context2.abrupt('break', 40);
+                return _context2.abrupt('break', 41);
 
-              case 36:
+              case 37:
                 //TODO allow nullable with break
 
                 a[0] = result;
 
-              case 37:
+              case 38:
                 _iteratorNormalCompletion2 = true;
-                _context2.next = 30;
+                _context2.next = 31;
                 break;
 
-              case 40:
-                _context2.next = 46;
+              case 41:
+                _context2.next = 47;
                 break;
 
-              case 42:
-                _context2.prev = 42;
-                _context2.t2 = _context2['catch'](28);
+              case 43:
+                _context2.prev = 43;
+                _context2.t2 = _context2['catch'](29);
                 _didIteratorError2 = true;
                 _iteratorError2 = _context2.t2;
 
-              case 46:
-                _context2.prev = 46;
+              case 47:
                 _context2.prev = 47;
+                _context2.prev = 48;
 
                 if (!_iteratorNormalCompletion2 && _iterator2.return) {
                   _iterator2.return();
                 }
 
-              case 49:
-                _context2.prev = 49;
+              case 50:
+                _context2.prev = 50;
 
                 if (!_didIteratorError2) {
-                  _context2.next = 52;
+                  _context2.next = 53;
                   break;
                 }
 
                 throw _iteratorError2;
 
-              case 52:
-                return _context2.finish(49);
-
               case 53:
-                return _context2.finish(46);
+                return _context2.finish(50);
 
               case 54:
+                return _context2.finish(47);
+
+              case 55:
                 if (keepgoing) {
-                  _context2.next = 56;
+                  _context2.next = 57;
                   break;
                 }
 
-                return _context2.abrupt('break', 59);
+                return _context2.abrupt('break', 60);
 
-              case 56:
+              case 57:
                 _iteratorNormalCompletion = true;
-                _context2.next = 16;
+                _context2.next = 17;
                 break;
 
-              case 59:
-                _context2.next = 65;
+              case 60:
+                _context2.next = 66;
                 break;
 
-              case 61:
-                _context2.prev = 61;
-                _context2.t3 = _context2['catch'](14);
+              case 62:
+                _context2.prev = 62;
+                _context2.t3 = _context2['catch'](15);
                 _didIteratorError = true;
                 _iteratorError = _context2.t3;
 
-              case 65:
-                _context2.prev = 65;
+              case 66:
                 _context2.prev = 66;
+                _context2.prev = 67;
 
                 if (!_iteratorNormalCompletion && _iterator.return) {
                   _iterator.return();
                 }
 
-              case 68:
-                _context2.prev = 68;
+              case 69:
+                _context2.prev = 69;
 
                 if (!_didIteratorError) {
-                  _context2.next = 71;
+                  _context2.next = 72;
                   break;
                 }
 
                 throw _iteratorError;
 
-              case 71:
-                return _context2.finish(68);
-
               case 72:
-                return _context2.finish(65);
+                return _context2.finish(69);
 
               case 73:
-                _context2.next = 78;
+                return _context2.finish(66);
+
+              case 74:
+                _context2.next = 79;
                 break;
 
-              case 75:
-                _context2.prev = 75;
-                _context2.t4 = _context2['catch'](8);
+              case 76:
+                _context2.prev = 76;
+                _context2.t4 = _context2['catch'](9);
 
                 errors.push(new Error(key + ': ' + _context2.t4.message));
 
-              case 78:
+              case 79:
                 if (!(errors.length > 0)) {
-                  _context2.next = 82;
+                  _context2.next = 83;
                   break;
                 }
 
@@ -389,23 +391,23 @@ var Model = (function () {
                 p.errors = errors;
                 throw p;
 
-              case 82:
-                _context2.next = 6;
+              case 83:
+                _context2.next = 7;
                 break;
 
-              case 84:
-                _context2.next = 86;
+              case 85:
+                _context2.next = 87;
                 return waitable(this.__hooks.afterValidate.bind(this), null);
 
-              case 86:
+              case 87:
                 return _context2.abrupt('return', true);
 
-              case 87:
+              case 88:
               case 'end':
                 return _context2.stop();
             }
           }
-        }, _callee2, this, [[8, 75], [14, 61, 65, 73], [28, 42, 46, 54], [47,, 49, 53], [66,, 68, 72]]);
+        }, _callee2, this, [[9, 76], [15, 62, 66, 74], [29, 43, 47, 55], [48,, 50, 54], [67,, 69, 73]]);
       }));
       return function validate() {
         return ref.apply(this, arguments);
@@ -440,30 +442,31 @@ var Model = (function () {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
-                _context4.prev = 0;
+                log('updating');
+                _context4.prev = 1;
 
                 console.log(this.__hooks);
-                _context4.next = 4;
+                _context4.next = 5;
                 return waitable(this.__hooks.beforeUpdate.bind(this), null);
 
-              case 4:
-                _context4.next = 6;
+              case 5:
+                _context4.next = 7;
                 return this.validate();
 
-              case 6:
+              case 7:
                 instance = this.__instance;
                 storage = this.___storage;
                 dir = storage.directory;
                 classFolder = path.resolve(dir, this.___classname);
                 itemFolder = path.resolve(classFolder, this.id);
-                _context4.next = 13;
+                _context4.next = 14;
                 return waitable(mkdirp, classFolder);
 
-              case 13:
-                _context4.next = 15;
+              case 14:
+                _context4.next = 16;
                 return waitable(mkdirp, itemFolder);
 
-              case 15:
+              case 16:
                 promises = [];
 
                 for (key in instance) {
@@ -498,30 +501,30 @@ var Model = (function () {
                     }))());
                   }
                 }
-                _context4.next = 19;
+                _context4.next = 20;
                 return _promise2.default.all(promises);
 
-              case 19:
+              case 20:
                 result = _context4.sent;
-                _context4.next = 22;
+                _context4.next = 23;
                 return waitable(this.__hooks.afterUpdate.bind(this), null);
 
-              case 22:
+              case 23:
                 return _context4.abrupt('return', result);
 
-              case 25:
-                _context4.prev = 25;
-                _context4.t0 = _context4['catch'](0);
+              case 26:
+                _context4.prev = 26;
+                _context4.t0 = _context4['catch'](1);
 
                 console.log(_context4.t0.stack);
                 throw _context4.t0;
 
-              case 29:
+              case 30:
               case 'end':
                 return _context4.stop();
             }
           }
-        }, _callee4, this, [[0, 25]]);
+        }, _callee4, this, [[1, 26]]);
       }));
       return function update() {
         return ref.apply(this, arguments);
@@ -1122,6 +1125,7 @@ var Storage = (function () {
                                             };
                                           })());
                                         } catch (e) {
+                                          log(e);
                                           reject(e);
                                         }
                                       }));
